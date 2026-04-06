@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Dropzone } from '@/components/ui/dropzone';
-import { Linkedin, X } from 'lucide-react';
+import { Linkedin, X, FileText, Sparkles, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
@@ -63,21 +63,30 @@ export default function UploadPageClient() {
   const isUpdating = resumeQuery.isPending || uploadResumeMutation.isPending;
 
   return (
-    <div className="flex flex-col items-center flex-1 px-4 py-12 gap-6">
-      <div className="w-full max-w-[438px] text-center font-mono">
-        <h1 className="text-base text-center pb-6">
-          Upload a PDF of your LinkedIn or your resume and generate your
-          personal site
+    <div className="flex flex-col items-center flex-1 px-4 py-12 gap-8">
+      <div className="w-full max-w-md text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-terracotta/10 text-terracotta text-sm mb-4">
+          <Sparkles className="h-4 w-4" />
+          <span>AI-Powered</span>
+        </div>
+        <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink mb-3">
+          Upload your resume
         </h1>
+        <p className="text-ink-light leading-relaxed">
+          Upload a PDF of your LinkedIn or resume and we&apos;ll generate your
+          personal website instantly.
+        </p>
+      </div>
 
-        <div className="relative mx-2.5">
+      <div className="w-full max-w-md">
+        <div className="relative">
           {fileState.status !== 'empty' && (
             <button
               onClick={handleReset}
-              className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full z-10"
+              className="absolute top-3 right-3 p-1.5 hover:bg-stone/50 rounded-full z-10 transition-colors duration-200"
               disabled={isUpdating}
             >
-              <X className="h-4 w-4 text-gray-500" />
+              <X className="h-4 w-4 text-ink-light" />
             </button>
           )}
 
@@ -86,23 +95,27 @@ export default function UploadPageClient() {
             maxFiles={1}
             icon={
               fileState.status !== 'empty' ? (
-                <img src="/uploaded-pdf.svg" className="h-6 w-6" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-xl flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-black" />
+                </div>
               ) : (
-                <Linkedin className="h-6 w-6 text-gray-600" />
+                <div className="w-12 h-12 bg-stone/50 rounded-xl flex items-center justify-center">
+                  <Linkedin className="h-6 w-6 text-black" />
+                </div>
               )
             }
             title={
-              <span className="text-base font-bold text-center text-design-black">
+              <span className="text-lg font-semibold text-ink text-center">
                 {fileState.status !== 'empty'
                   ? fileState.file.name
-                  : 'Upload PDF'}
+                  : 'Drop your PDF here'}
               </span>
             }
             description={
-              <span className="text-xs font-light text-center text-design-gray">
+              <span className="text-sm text-center text-ink-light">
                 {fileState.status !== 'empty'
                   ? `${(fileState.file.size / 1024 / 1024).toFixed(2)} MB`
-                  : 'Resume or LinkedIn'}
+                  : 'Or click to browse files'}
               </span>
             }
             isUploading={uploadResumeMutation.isPending}
@@ -116,55 +129,58 @@ export default function UploadPageClient() {
         <Dialog>
           <DialogTrigger asChild>
             <Button
-              variant="ghost"
-              className="mt-3 hover:bg-white border border-transparent hover:border-gray-200 font-mono text-center cursor-help flex flex-row gap-1.5 justify-center mx-auto"
+              variant="default"
+              className="mt-4 text-sm flex items-center gap-2 mx-auto"
             >
-              <span className="ml-1 inline-block w-4 h-4 rounded-full border border-gray-300 items-center justify-center text-xs cursor-help">
-                i
-              </span>
-              <p className="text-xs text-center text-design-gray whitespace-normal">
-                How to upload LinkedIn profile
-              </p>
+              <Info className="h-4 w-4" />
+              How to download LinkedIn PDF
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-full max-w-[652px] text-center font-mono !p-0 gap-0">
-            <DialogTitle className="font-mono text-base text-center text-design-gray px-7 py-4">
-              Go to your profile → Click on “Resources” → Then “Save to PDF”
+          <DialogContent className="w-full max-w-[652px] p-0 gap-0 overflow-hidden">
+            <DialogTitle className="font-display text-lg text-ink px-6 py-4 border-b border-stone">
+              Go to your profile → Click &quot;Resources&quot; → Then &quot;Save to PDF&quot;
             </DialogTitle>
-            <img src="/linkedin-save-to-pdf.png" className="h-auto w-full" />
+            <img
+              src="/linkedin-save-to-pdf.png"
+              className="h-auto w-full"
+              alt="LinkedIn Save to PDF instructions"
+            />
           </DialogContent>
         </Dialog>
       </div>
-      <div className="font-mono">
-        <div className="relative">
-          <Button
-            className="px-4 py-3 h-auto bg-design-black hover:bg-design-black/95"
-            disabled={fileState.status === 'empty' || isUpdating}
-            onClick={() => router.push('/pdf')}
-          >
-            {isUpdating ? (
-              <>
-                <CustomSpinner className="h-5 w-5 mr-2" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <img
-                  src="/sparkle.png"
-                  alt="Sparkle Icon"
-                  className="h-5 w-5 mr-2"
-                />
-                Generate Website
-              </>
-            )}
-          </Button>
+
+      <div className="w-full max-w-md">
+        <div className="relative group">
+          {/* Subtle glow on hover */}
+          <div className="absolute -inset-1 bg-terracotta/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md" />
+          
+          <div className="flex justify-center items-center">
+            <Button
+              size="lg"
+              className="relative bg-gray-800 hover:bg-gray-900 text-white font-medium transition-all duration-200 hover:shadow-lg hover:shadow-terracotta/25 disabled:opacity-50"
+              disabled={fileState.status === 'empty' || isUpdating}
+              onClick={() => router.push('/pdf')}
+            >
+              {isUpdating ? (
+                <>
+                  <CustomSpinner className="h-4 w-4 mr-2" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                  Generate Website
+                </>
+              )}
+            </Button>
+          </div>
           {fileState.status === 'empty' && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="absolute inset-0" />
+                  <span className="absolute inset-0 cursor-not-allowed" />
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent className="bg-ink text-white">
                   <p>Upload a PDF to continue</p>
                 </TooltipContent>
               </Tooltip>

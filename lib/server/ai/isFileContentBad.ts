@@ -1,19 +1,19 @@
 import { generateText } from 'ai';
-import { createTogetherAI } from '@ai-sdk/togetherai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
-const togetherai = createTogetherAI({
-  apiKey: process.env.TOGETHER_API_KEY ?? '',
-  baseURL: 'https://together.helicone.ai/v1',
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY ?? '',
+  baseURL: 'https://openrouter.ai/api/v1',
   headers: {
-    'Helicone-Auth': `Bearer ${process.env.HELICONE_API_KEY}`,
-    'Helicone-Property-AppName': 'self.so',
+    'HTTP-Referer': 'https://self.so',
+    'X-Title': 'self.so',
   },
 });
 
 export const isFileContentBad = async (fileContent: string) => {
   // we can for now do the AI parsing here?
   const generationResult = await generateText({
-    model: togetherai('meta-llama/Meta-Llama-Guard-3-8B'),
+    model: openrouter.chat('openrouter/free'),
     prompt: `You are given the following file content, evalute if content is harmful or spammy.
     ${fileContent}
     `,

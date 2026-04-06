@@ -1,14 +1,14 @@
 import { generateObject } from 'ai';
-import { createTogetherAI } from '@ai-sdk/togetherai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { ResumeDataSchema } from '@/lib/resume';
 import dedent from 'dedent';
 
-const togetherai = createTogetherAI({
-  apiKey: process.env.TOGETHER_API_KEY ?? '',
-  baseURL: 'https://together.helicone.ai/v1',
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY ?? '',
+  baseURL: 'https://openrouter.ai/api/v1',
   headers: {
-    'Helicone-Auth': `Bearer ${process.env.HELICONE_API_KEY}`,
-    'Helicone-Property-AppName': 'self.so',
+    'HTTP-Referer': 'https://self.so',
+    'X-Title': 'self.so',
   },
 });
 
@@ -16,7 +16,7 @@ export const generateResumeObject = async (resumeText: string) => {
   const startTime = Date.now();
   try {
     const { object } = await generateObject({
-      model: togetherai('Qwen/Qwen3-Next-80B-A3B-Instruct'),
+      model: openrouter('openrouter/free'),
       maxRetries: 2,
        schema: ResumeDataSchema,
       prompt: dedent(`You are an expert resume writer. Generate a resume object from the following resume text with this EXACT structure:

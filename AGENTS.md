@@ -15,8 +15,6 @@
 - **Never run development server**: Do NOT use `npm run dev`, `pnpm dev`, or any development server commands
 - **Never start production server**: Do NOT use `npm start`, `pnpm start`, or production server commands
 - **Never access external services**: Do NOT make HTTP requests to external APIs or services
-- **Never modify environment files**: Do NOT edit `.env` files or other configuration files
-- **Never commit changes**: Do NOT use git commands to commit or push changes
 
 ## Reasoning
 

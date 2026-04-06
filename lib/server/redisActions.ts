@@ -15,7 +15,7 @@ const FileSchema = z.object({
   name: z.string(),
   url: z.string().nullish(),
   size: z.number(),
-  bucket: z.string(),
+  bucket: z.string().optional(),
   key: z.string(),
 });
 

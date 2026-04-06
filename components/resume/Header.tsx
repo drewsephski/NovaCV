@@ -19,7 +19,7 @@ interface SocialButtonProps {
 
 function SocialButton({ href, icon: Icon, label }: SocialButtonProps) {
   return (
-    <Button className="size-8" variant="outline" size="icon" asChild>
+    <Button className="size-8 bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-gray-300" variant="outline" size="icon" asChild>
       <a
         href={
           href.startsWith('mailto:') || href.startsWith('tel:')
@@ -95,7 +95,7 @@ export function Header({
   return (
     <header className="flex items-start md:items-center justify-between gap-4 ">
       <div className="flex-1 space-y-1.5">
-        <h1 className="text-2xl font-bold" id="resume-name">
+        <h1 className="text-2xl font-bold text-gray-900" id="resume-name">
           {header.name}
         </h1>
         <p
@@ -105,9 +105,9 @@ export function Header({
           {header.shortAbout}
         </p>
 
-        <p className="max-w-md items-center text-pretty font-mono text-xs text-foreground">
+        <p className="max-w-md items-center text-pretty font-mono text-xs text-gray-700">
           <a
-            className="inline-flex gap-x-1.5 align-baseline leading-none hover:underline text-[#9CA0A8]"
+            className="inline-flex gap-x-1.5 align-baseline leading-none hover:underline text-gray-600"
             href={`https://www.google.com/maps/search/${encodeURIComponent(
               header.location || ''
             )}`}

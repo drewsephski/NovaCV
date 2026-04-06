@@ -40,7 +40,7 @@ export const EditResume = ({
       aria-label="Resume Content editing"
     >
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-bold">Header</h2>
+        <h2 className="text-xl font-bold text-gray-900">Header</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
             <Label htmlFor="name" className="text-sm font-medium text-gray-700">
@@ -95,7 +95,7 @@ export const EditResume = ({
               Short About
             </Label>
             <textarea
-              className="w-full p-2 border rounded-md font-mono text-sm"
+              className="w-full p-2 border rounded-md font-mono text-sm text-gray-900"
               value={resume?.header?.shortAbout || ''}
               onChange={(e) => {
                 onChangeResume({
@@ -245,9 +245,9 @@ export const EditResume = ({
       <div className="flex flex-col gap-6">
         {/* Summary Section */}
         <div className="space-y-2">
-          <h2 className="text-xl font-bold">About</h2>
+          <h2 className="text-xl font-bold text-gray-900">About</h2>
           <textarea
-            className="w-full p-2 border rounded-md font-mono text-sm"
+            className="w-full p-2 border rounded-md font-mono text-sm text-gray-900"
             value={resume?.summary}
             onChange={(e) => {
               onChangeResume({
@@ -262,7 +262,7 @@ export const EditResume = ({
 
         {/* Work Experience Section */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">Work Experience</h2>
+          <h2 className="text-xl font-bold text-gray-900">Work Experience</h2>
           <div className="space-y-4">
             {resume?.workExperience?.map((work, index) => (
               <WorkExperienceField
@@ -313,7 +313,7 @@ export const EditResume = ({
 
         {/* Education Section */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">Education</h2>
+          <h2 className="text-xl font-bold text-gray-900">Education</h2>
           <div className="space-y-4">
             {resume?.education?.map((edu, index) => (
               <EducationField
@@ -355,7 +355,7 @@ export const EditResume = ({
 
         {/* Skills Section */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">Skills</h2>
+          <h2 className="text-xl font-bold text-gray-900">Skills</h2>
           <div className="flex flex-wrap gap-2">
             {resume.header.skills.map((skill, index) => (
               <SkillField

@@ -14,6 +14,9 @@ const config: Config = {
         // Vercel-inspired dark palette
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        'design-resume': '#1f2937', // Dark gray for white bg resume
+        'design-black': '#171717', // Near black
+        'design-white': '#fcfcfc', // Off white
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',

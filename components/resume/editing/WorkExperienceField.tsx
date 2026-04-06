@@ -53,7 +53,7 @@ export const WorkExperienceField: React.FC<WorkExperienceFieldProps> = ({
         <div className="md:col-span-2">
           <Label
             htmlFor={`work-title-${index}`}
-            className="text-sm font-medium"
+            className="text-sm font-medium text-gray-700"
           >
             Job Title
           </Label>
@@ -74,7 +74,7 @@ export const WorkExperienceField: React.FC<WorkExperienceFieldProps> = ({
         <div>
           <Label
             htmlFor={`work-company-${index}`}
-            className="text-sm font-medium"
+            className="text-sm font-medium text-gray-700"
           >
             Company
           </Label>
@@ -95,7 +95,7 @@ export const WorkExperienceField: React.FC<WorkExperienceFieldProps> = ({
         <div>
           <Label
             htmlFor={`work-location-${index}`}
-            className="text-sm font-medium"
+            className="text-sm font-medium text-gray-700"
           >
             Location
           </Label>
@@ -114,7 +114,7 @@ export const WorkExperienceField: React.FC<WorkExperienceFieldProps> = ({
         </div>
 
         <div className="md:col-span-2">
-          <Label className="text-sm font-medium">Date Range</Label>
+          <Label className="text-sm font-medium text-gray-700">Date Range</Label>
           <DateRangePicker
             startDate={normalizeDate(work.start)}
             endDate={normalizeDate(work.end)}
@@ -136,13 +136,13 @@ export const WorkExperienceField: React.FC<WorkExperienceFieldProps> = ({
         <div className="md:col-span-2">
           <Label
             htmlFor={`work-description-${index}`}
-            className="text-sm font-medium"
+            className="text-sm font-medium text-gray-700"
           >
             Description
           </Label>
           <textarea
             id={`work-description-${index}`}
-            className="w-full p-2 border rounded-md font-mono text-sm"
+            className="w-full p-2 border rounded-md font-mono text-sm text-gray-900"
             value={work.description}
             onChange={(e) => {
               onUpdate(index, {

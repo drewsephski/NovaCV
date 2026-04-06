@@ -5,12 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getSelfSoUrl(username: string) {
+export function getNovaCVUrl(username: string) {
   const domain =
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000'
-      : 'https://self.so';
+      : 'https://novacv.com';
   return `${domain}/${username}`;
 }
 
-export const TOGETHER_LINK = 'https://togetherai.link/?utm_source=selfso&utm_medium=referral&utm_campaign=example-app';
+export const TOGETHER_LINK = 'https://togetherai.link/?utm_source=novacv&utm_medium=referral&utm_campaign=example-app';

@@ -49,7 +49,7 @@ export const EducationField: React.FC<EducationFieldProps> = ({
         <div className="md:col-span-2">
           <Label
             htmlFor={`edu-degree-${index}`}
-            className="text-sm font-medium"
+            className="text-sm font-medium text-gray-700"
           >
             Degree
           </Label>
@@ -70,7 +70,7 @@ export const EducationField: React.FC<EducationFieldProps> = ({
         <div className="md:col-span-2">
           <Label
             htmlFor={`edu-school-${index}`}
-            className="text-sm font-medium"
+            className="text-sm font-medium text-gray-700"
           >
             School
           </Label>
@@ -89,7 +89,7 @@ export const EducationField: React.FC<EducationFieldProps> = ({
         </div>
 
         <div className="md:col-span-2">
-          <Label className="text-sm font-medium">Date Range</Label>
+          <Label className="text-sm font-medium text-gray-700">Date Range</Label>
           <DateRangePicker
             startDate={normalizeDate(edu.start)}
             endDate={normalizeDate(edu.end)}

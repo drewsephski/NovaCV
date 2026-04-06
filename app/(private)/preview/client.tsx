@@ -6,7 +6,7 @@ import { FullResume } from '@/components/resume/FullResume';
 import { EditResume } from '@/components/resume/editing/EditResume';
 import { useUserActions } from '@/hooks/useUserActions';
 import { ResumeData } from '@/lib/server/redisActions';
-import { getSelfSoUrl } from '@/lib/utils';
+import { getNovaCVUrl } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -122,7 +122,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
         <span className="md:hidden"> Website updated!</span>
       </p>
       <a
-        href={getSelfSoUrl(usernameQuery.data.username)}
+        href={getNovaCVUrl(usernameQuery.data.username)}
         target="_blank"
         className="flex justify-center items-center overflow-hidden gap-1 px-3 py-1 rounded bg-[#009505] h-[26px]"
       >
@@ -237,7 +237,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
         )}
       </div>
 
-      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between px-4">
+      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 bg-white flex items-center justify-between px-4">
         {isEditMode ? (
           <EditResume
             resume={localResumeData}
@@ -274,7 +274,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
 
       <PopupSiteLive
         isOpen={showModalSiteLive}
-        websiteUrl={getSelfSoUrl(usernameQuery.data.username)}
+        websiteUrl={getNovaCVUrl(usernameQuery.data.username)}
         onClose={() => {
           setModalSiteLive(false);
         }}

@@ -23,7 +23,7 @@ export const SkillField: React.FC<SkillFieldProps> = ({
           const trimmedSkill = (e.currentTarget.textContent || '').trim();
           onUpdate(index, trimmedSkill);
         }}
-        className="bg-transparent outline-none h-6 py-0 min-w-[40px] overflow-hidden"
+        className="bg-transparent outline-none h-6 py-0 min-w-[40px] overflow-hidden text-gray-900"
         style={{ width: 'fit-content' }}
       >
         {skill}

@@ -14,30 +14,30 @@ export async function generateMetadata({
 
   if (!user_id) {
     return {
-      title: 'User Not Found | Self.so',
-      description: 'This user profile could not be found on Self.so',
+      title: 'User Not Found | NovaCV',
+      description: 'This user profile could not be found on NovaCV',
     };
   }
 
   if (!resume?.resumeData || resume.status !== 'live') {
     return {
-      title: 'Resume Not Found | Self.so',
-      description: 'This resume could not be found on Self.so',
+      title: 'Resume Not Found | NovaCV',
+      description: 'This resume could not be found on NovaCV',
     };
   }
 
   return {
-    title: `${resume.resumeData.header.name}'s Resume | Self.so`,
+    title: `${resume.resumeData.header.name}'s Resume | NovaCV`,
     description: resume.resumeData.summary,
     openGraph: {
-      title: `${resume.resumeData.header.name}'s Resume | Self.so`,
+      title: `${resume.resumeData.header.name}'s Resume | NovaCV`,
       description: resume.resumeData.summary,
       images: [
         {
-          url: `https://self.so/${username}/og`,
+          url: `https://novacv.com/${username}/og`,
           width: 1200,
           height: 630,
-          alt: 'Self.so Profile',
+          alt: 'NovaCV Profile',
         },
       ],
     },
@@ -69,12 +69,12 @@ export default async function ProfilePage({
     email:
       resume.resumeData.header.contacts.email &&
       `mailto:${resume.resumeData.header.contacts.email}`,
-    url: `https://self.so/${username}`,
+    url: `https://novacv.com/${username}`,
     skills: resume.resumeData.header.skills,
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -85,14 +85,14 @@ export default async function ProfilePage({
       <div className="text-center mt-8 mb-4">
         <Link
           href={`/?ref=${username}`}
-          className="text-design-gray font-mono text-sm"
+          className="text-gray-500 font-mono text-sm"
         >
           Made by{' '}
-          <span className="text-design-black underline underline-offset-2">
-            Self.so
+          <span className="text-gray-900 underline underline-offset-2">
+            NovaCV
           </span>
         </Link>
       </div>
-    </>
+    </div>
   );
 }

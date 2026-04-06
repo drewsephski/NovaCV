@@ -165,7 +165,7 @@ export default function UsernameEditorView({
   initialUsername,
   isOpen,
   onClose,
-  prefix = 'self.so/',
+  prefix = 'novacv.com/',
 }: {
   initialUsername: string;
   isOpen: boolean;

@@ -1,58 +1,64 @@
-<a href="https://www.self.so">
-  <img alt="Self" src="./public/og.png">
-  <h1 align="center">Self</h1>
-</a>
+<h1 align="center">NovaCV</h1>
 
 <p align="center">
-  An open source personal site builder. Powered by Together.ai.
+  Turn your LinkedIn PDF or resume into a beautiful personal website instantly.
 </p>
 
-## Tech stack
+<p align="center">
+  <a href="https://novacv.com">Live Site</a>
+</p>
 
-- Together.ai for the LLM
-- Vercel's AI SDK as the LLM framework
-- Clerk for authentication
-- Next.js app router
-- Helicone for observability
-- S3 for object storage (PDFs)
-- Upstash redis for my DB
-- Vercel for hosting
+## Tech Stack
 
-## How it works
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router)
+- **AI**: [OpenRouter](https://openrouter.ai) via Vercel AI SDK
+- **Auth**: [Clerk](https://clerk.com)
+- **Database**: [Upstash Redis](https://upstash.com)
+- **File Uploads**: [UploadThing](https://uploadthing.com)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Fonts**: Geist
+- **Analytics**: Plausible
+- **Testing**: Vitest
 
-1. Create an account on the site with Clerk
-2. Upload a PDF which gets uploaded to S3 and does a safety check with Llama Guard
-3. Send the PDF as context to Qwen Next to extract out relevant information with structured outputs (JSON mode)
-4. Get all the information & put it on a dynamic route for the user to be able to view & publish their site
-
-## Cloning & running
-
-1. Fork or clone the repo
-2. Create an account at [Together AI](https://togetherai.link/?utm_source=selfso&utm_medium=referral&utm_campaign=example-app) for the LLM
-3. Create an account at [Upstash](https://upstash.com/) for the Redis DB
-4. Create an account at [AWS](https://aws.amazon.com/) for the S3 bucket
-5. Create a `.env` (use the `.example.env` for reference) and replace the API keys
-6. Run `pnpm install` and `pnpm run dev` to install dependencies and run locally
-
-
-### Running Tests Locally
+## Getting Started
 
 ```bash
-# Run all tests
-pnpm test:run
+# Install dependencies
+pnpm install
 
-# Run tests with UI
-pnpm test:ui
+# Set up environment variables
+cp .env.example .env.local
 
-# Run tests in watch mode
-pnpm test
+# Run development server
+pnpm dev
 ```
 
-## Future tasks
+## Environment Variables
 
-- [ ] add error logging to make sure to fix any bugs
-- [ ] add ability to get to the "preview" page if you have a site already
-- [ ] ability to edit links in the site
-- [ ] ability to edit any section in the site
-- [ ] add themes that you can toggle on (start with ghibli)
-- [ ] Delete previously uploaded resume when we upload a new one
+```bash
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+
+# Upstash Redis
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+# OpenRouter
+OPENROUTER_API_KEY=
+
+# UploadThing
+UPLOADTHING_TOKEN=
+
+# Plausible (optional)
+NEXT_PUBLIC_PLAUSIBLE_DOMAIN=
+```
+
+## Scripts
+
+```bash
+pnpm dev      # Development server
+pnpm build    # Production build
+pnpm test     # Run tests
+pnpm lint     # Lint code
+```

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { cn, getSelfSoUrl } from '@/lib/utils';
+import { cn, getNovaCVUrl } from '@/lib/utils';
 import { ExternalLink, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -11,7 +11,7 @@ export type PublishStatuses = 'draft' | 'live';
 
 export default function PreviewActionbar({
   initialUsername = '',
-  prefix = 'self.so/',
+  prefix = 'novacv.com/',
   status,
   onStatusChange,
   isChangingStatus,
@@ -45,7 +45,7 @@ export default function PreviewActionbar({
               )}
               onClick={() => {
                 if (!initialUsername || status !== 'live') return;
-                const portofolioUrl = getSelfSoUrl(initialUsername);
+                const portofolioUrl = getNovaCVUrl(initialUsername);
                 navigator.clipboard.writeText(portofolioUrl);
                 toast.success('Copied link to your website');
               }}
@@ -54,14 +54,14 @@ export default function PreviewActionbar({
           </div>
 
           <div className="overflow-hidden rounded bg-white border-[0.5px] border-neutral-300 flex flex-row md:w-80 w-full">
-            <span className="flex-1 p-3 text-sm text-[#5d5d5d] border-none outline-none focus:ring-0 bg-transparent w-fit truncate">
+            <span className="flex-1 p-3 text-sm text-gray-800 border-none outline-none focus:ring-0 bg-transparent w-fit truncate">
               {initialUsername}
             </span>
 
             <Button
               variant="ghost"
               size="icon"
-              className="size-[44px] flex items-center justify-center border-l-[0.5px]"
+              className="size-[44px] flex items-center justify-center border-l-[0.5px] text-gray-700 hover:text-gray-900 hover:bg-gray-100"
               onClick={() => setIsEditorOpen(true)}
             >
               <Pencil className="w-4 h-4" />
@@ -75,7 +75,7 @@ export default function PreviewActionbar({
               {status === 'live' ? (
                 <button
                   onClick={() =>
-                    window.open(getSelfSoUrl(initialUsername), '_blank')
+                    window.open(getNovaCVUrl(initialUsername), '_blank')
                   }
                   className="flex items-center gap-1 hover:opacity-80 transition-opacity"
                 >
@@ -130,7 +130,7 @@ export default function PreviewActionbar({
             {status === 'live' && (
               <Button className="flex items-center min-w-[100px] min-h-8 gap-1.5 px-3 py-1.5 h-auto">
                 <a
-                  href={`${getSelfSoUrl(initialUsername)}`}
+                  href={`${getNovaCVUrl(initialUsername)}`}
                   target="_blank"
                   rel="noreferrer"
                 >

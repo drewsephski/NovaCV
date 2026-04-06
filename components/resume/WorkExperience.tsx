@@ -32,7 +32,7 @@ export function WorkExperience({
 
   return (
     <Section>
-      <h2 className="text-lg font-bold" id="work-experience">
+      <h2 className="text-lg font-bold text-gray-900" id="work-experience">
         Work Experience
       </h2>
       <div
@@ -48,26 +48,26 @@ export function WorkExperience({
             >
               <div className="flex flex-wrap justify-between items-start self-stretch gap-2">
                 <div className="flex flex-wrap justify-start items-center gap-2">
-                  <p className="text-base font-semibold text-left text-[#050914]">
+                  <p className="text-base font-semibold text-left text-gray-900">
                     {item.title}
                   </p>
-                  <div className="flex justify-center items-center relative overflow-hidden gap-2.5 px-[7px] py-0.5 rounded bg-[#eeeff0]">
-                    <p className="text-[12px] font-semibold text-center text-[#54575e]">
+                  <div className="flex justify-center items-center relative overflow-hidden gap-2.5 px-[7px] py-0.5 rounded bg-gray-100">
+                    <p className="text-[12px] font-semibold text-center text-gray-700">
                       {item.location}
                     </p>
                   </div>
                 </div>
-                <p className="text-sm text-right text-[#54575e]">
+                <p className="text-sm text-right text-gray-600">
                   {item.formattedDate}
                 </p>
               </div>
               <div className="flex flex-col justify-start items-start relative gap-1.5">
-                <p className="self-stretch text-sm font-medium text-left text-[#54575e] font-mono capitalize flex flex-wrap gap-1">
+                <p className="self-stretch text-sm font-medium text-left text-gray-700 font-mono capitalize flex flex-wrap gap-1">
                   <span>{item.companyLower}</span>
                   {item.company && item.contract && <span>·</span>}
                   <span>{item.contract}</span>
                 </p>
-                <p className="self-stretch text-sm font-medium text-left text-[#6c737f] whitespace-pre-line">
+                <p className="self-stretch text-sm font-medium text-left text-gray-600 whitespace-pre-line">
                   {item.description}
                 </p>
               </div>

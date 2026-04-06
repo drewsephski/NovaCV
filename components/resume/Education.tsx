@@ -20,17 +20,17 @@ function EducationItem({
   }
 
   return (
-    <Card>
+    <Card className="bg-white border-gray-200">
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-base">
           <h3
-            className="font-semibold leading-none"
+            className="font-semibold leading-none text-gray-900"
             id={`education-${school.toLowerCase().replace(/\s+/g, '-')}`}
           >
             {school}
           </h3>
           <div
-            className="text-sm tabular-nums text-gray-500"
+            className="text-sm tabular-nums text-gray-600"
             aria-label={`Period: ${getYear(start)} to ${
               end ? ` ${getYear(end)}` : 'Present'
             }`}
@@ -72,7 +72,7 @@ export function Education({
 
   return (
     <Section>
-      <h2 className="text-xl font-bold" id="education-section">
+      <h2 className="text-xl font-bold text-gray-900" id="education-section">
         Education
       </h2>
       <div

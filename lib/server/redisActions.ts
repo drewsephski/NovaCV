@@ -462,3 +462,39 @@ export const getLivePortfolioFromHistory = async (
     return null;
   }
 };
+
+/**
+ * Delete a portfolio history entry
+ * @param userId User ID
+ * @param historyEntryId The history entry ID to delete
+ * @returns Promise resolving to boolean indicating success
+ */
+export const deletePortfolioHistoryEntry = async (
+  userId: string,
+  historyEntryId: string,
+): Promise<boolean> => {
+  try {
+    const historyKey = `${REDIS_KEYS.PORTFOLIO_HISTORY_PREFIX}${userId}`;
+    const history = await getPortfolioHistory(userId);
+
+    // Filter out the entry to delete
+    const updatedEntries = history.entries.filter((entry) => entry.id !== historyEntryId);
+
+    // Check if entry was found and removed
+    if (updatedEntries.length === history.entries.length) {
+      console.error('History entry not found:', historyEntryId);
+      return false;
+    }
+
+    // Update history with remaining entries
+    await upstashRedis.set(historyKey, {
+      entries: updatedEntries,
+      totalVersions: history.totalVersions,
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting portfolio history entry:', error);
+    return false;
+  }
+};

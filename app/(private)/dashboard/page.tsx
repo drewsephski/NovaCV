@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardDataResponse } from '@/app/api/dashboard/route';
 import { RedeployResponse } from '@/app/api/portfolio/redeploy/route';
+import { DeleteResponse } from '@/app/api/portfolio/delete/route';
 import { toast } from 'sonner';
 import { formatDistanceToNow, format } from 'date-fns';
 import {
@@ -18,11 +19,23 @@ import {
   Clock,
   Layers,
   ChevronRight,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollReveal, StaggerContainer, StaggerItem, DotGrid, CornerAccent } from '@/components/motion';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const fetchDashboardData = async (): Promise<DashboardDataResponse> => {
   const response = await fetch('/api/dashboard');
@@ -44,6 +57,21 @@ const redeployPortfolio = async (historyEntryId: string): Promise<RedeployRespon
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to redeploy portfolio');
+  }
+  return response.json();
+};
+
+const deleteHistoryEntry = async (historyEntryId: string): Promise<DeleteResponse> => {
+  const response = await fetch('/api/portfolio/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ historyEntryId }),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to delete history entry');
   }
   return response.json();
 };
@@ -130,6 +158,9 @@ function StatCard({
 export default function DashboardPage() {
   const queryClient = useQueryClient();
   const [redeployingId, setRedeployingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
@@ -150,9 +181,36 @@ export default function DashboardPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteHistoryEntry,
+    onSuccess: () => {
+      toast.success('History entry deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setDeletingId(null);
+      setDeleteModalOpen(false);
+      setEntryToDelete(null);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete history entry');
+      setDeletingId(null);
+    },
+  });
+
   const handleRedeploy = (historyEntryId: string) => {
     setRedeployingId(historyEntryId);
     redeployMutation.mutate(historyEntryId);
+  };
+
+  const handleDeleteClick = (historyEntryId: string) => {
+    setEntryToDelete(historyEntryId);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (entryToDelete) {
+      setDeletingId(entryToDelete);
+      deleteMutation.mutate(entryToDelete);
+    }
   };
 
   if (isLoading) {
@@ -198,6 +256,7 @@ export default function DashboardPage() {
 
   const { history, livePortfolio, totalVersions } = data!;
   const archivedEntries = history.entries.filter((entry) => entry.status === 'archived');
+  const allEntries = history.entries;
 
   return (
     <div className="min-h-screen bg-[#faf9f7] text-[#1a1a1a] overflow-x-hidden">
@@ -341,10 +400,10 @@ export default function DashboardPage() {
               History
             </h2>
 
-            {archivedEntries.length > 0 ? (
+            {allEntries.length > 0 ? (
               <div className="space-y-3">
                 <AnimatePresence>
-                  {archivedEntries.map((entry, index) => (
+                  {allEntries.map((entry, index) => (
                     <motion.div
                       key={entry.id}
                       initial={{ opacity: 0, y: 10 }}
@@ -355,36 +414,66 @@ export default function DashboardPage() {
                     >
                       <div className="flex items-center justify-between p-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-[#f5f5f5] flex items-center justify-center group-hover:bg-[#f0f0f0] transition-colors">
-                            <Archive className="h-5 w-5 text-[#666]" strokeWidth={1.5} />
+                          <div className={`w-12 h-12 flex items-center justify-center group-hover:bg-[#f0f0f0] transition-colors ${entry.status === 'live' ? 'bg-emerald-50' : 'bg-[#f5f5f5]'}`}>
+                            {entry.status === 'live' ? (
+                              <StatusIndicator status="live" />
+                            ) : (
+                              <Archive className="h-5 w-5 text-[#666]" strokeWidth={1.5} />
+                            )}
                           </div>
                           <div>
                             <div className="flex items-center gap-3 mb-1">
                               <span className="font-normal">Portfolio v{entry.version}</span>
-                              <span className="text-xs px-2 py-0.5 bg-[#f5f5f5] text-[#666] group-hover:bg-[#f0f0f0] transition-colors">Archived</span>
+                              <span className={`text-xs px-2 py-0.5 group-hover:bg-[#f0f0f0] transition-colors ${entry.status === 'live' ? 'bg-emerald-50 text-emerald-600' : 'bg-[#f5f5f5] text-[#666]'}`}>
+                                {entry.status === 'live' ? 'Live' : 'Archived'}
+                              </span>
                             </div>
                             <p className="text-xs text-[#999]">
                               {format(entry.deployedAt, 'MMMM d, yyyy')} • {formatDistanceToNow(entry.deployedAt, { addSuffix: true })}
                             </p>
                           </div>
                         </div>
-                        <motion.button
-                          onClick={() => handleRedeploy(entry.id)}
-                          disabled={redeployingId === entry.id}
-                          className="opacity-0 group-hover:opacity-100 inline-flex items-center gap-2 px-3 py-2 border border-[#1a1a1a] text-[#1a1a1a] text-xs hover:bg-[#1a1a1a] hover:text-white transition-all disabled:opacity-50"
-                        >
-                          {redeployingId === entry.id ? (
-                            <>
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            onClick={() => handleDeleteClick(entry.id)}
+                            disabled={deletingId === entry.id}
+                            className="inline-flex items-center gap-2 px-3 py-2 border border-red-200 text-red-600 text-xs hover:bg-red-50 hover:border-red-300 transition-all disabled:opacity-50"
+                          >
+                            {deletingId === entry.id ? (
                               <div className="h-3 w-3 animate-spin border border-current border-t-transparent rounded-full" />
-                              <span>Redeploying...</span>
-                            </>
-                          ) : (
-                            <>
-                              <RotateCcw className="h-3 w-3" strokeWidth={1.5} />
-                              <span>Redeploy</span>
-                            </>
+                            ) : (
+                              <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                            )}
+                            <span>{deletingId === entry.id ? 'Deleting...' : 'Delete'}</span>
+                          </motion.button>
+                          <Link href={`/preview?version=${entry.id}`}>
+                            <motion.button
+                              className="inline-flex items-center gap-2 px-3 py-2 border border-[#1a1a1a] text-[#1a1a1a] text-xs hover:bg-[#1a1a1a] hover:text-white transition-all"
+                            >
+                              <Pencil className="h-3 w-3" strokeWidth={1.5} />
+                              <span>Edit</span>
+                            </motion.button>
+                          </Link>
+                          {entry.status === 'archived' && (
+                            <motion.button
+                              onClick={() => handleRedeploy(entry.id)}
+                              disabled={redeployingId === entry.id}
+                              className="inline-flex items-center gap-2 px-3 py-2 border border-[#1a1a1a] text-[#1a1a1a] text-xs hover:bg-[#1a1a1a] hover:text-white transition-all disabled:opacity-50"
+                            >
+                              {redeployingId === entry.id ? (
+                                <>
+                                  <div className="h-3 w-3 animate-spin border border-current border-t-transparent rounded-full" />
+                                  <span>Redeploying...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <RotateCcw className="h-3 w-3" strokeWidth={1.5} />
+                                  <span>Redeploy</span>
+                                </>
+                              )}
+                            </motion.button>
                           )}
-                        </motion.button>
+                        </div>
                       </div>
                     </motion.div>
                   ))}
@@ -399,6 +488,35 @@ export default function DashboardPage() {
             )}
           </section>
         </ScrollReveal>
+
+        {/* Delete Confirmation Modal */}
+        <AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+          <AlertDialogContent className="bg-white border border-[#e5e5e5]">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-normal">Delete Version?</AlertDialogTitle>
+              <AlertDialogDescription className="text-[#666]">
+                Are you sure you want to delete this portfolio version? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                className="border-[#ccc] text-[#666] hover:bg-[#f0f0f0]"
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setEntryToDelete(null);
+                }}
+              >
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                className="bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

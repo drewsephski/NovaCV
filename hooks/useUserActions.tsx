@@ -4,6 +4,7 @@ import { useUploadThing } from '@/lib/uploadthing';
 import { PublishStatuses } from '@/components/PreviewActionbar';
 import { ResumeDataSchema } from '@/lib/resume';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 // Fetch resume data
 const fetchResume = async (): Promise<{
@@ -57,8 +58,25 @@ const regenerateResume = async (): Promise<{ resumeData: ResumeData }> => {
   return await response.json();
 };
 
+const checkSubscriptionStatus = async (): Promise<{
+  hasSubscription: boolean;
+  subscription?: {
+    status: string;
+    currentPeriodEnd?: number;
+    cancelAtPeriodEnd?: boolean;
+  } | null;
+}> => {
+  const response = await fetch('/api/subscription-check');
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to check subscription');
+  }
+  return await response.json();
+};
+
 export function useUserActions() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { startUpload, isUploading } = useUploadThing('pdfUploader');
 
   // Query for fetching resume data
@@ -157,14 +175,50 @@ export function useUserActions() {
   const toggleStatusMutation = useMutation({
     mutationFn: async (newPublishStatus: PublishStatuses) => {
       if (!resumeQuery.data?.resume) return;
+
+      // Check subscription if trying to publish (not when unpublishing)
+      if (newPublishStatus === 'live') {
+        const { hasSubscription } = await checkSubscriptionStatus();
+        if (!hasSubscription) {
+          throw new Error('SUBSCRIPTION_REQUIRED');
+        }
+      }
+
       await internalResumeUpdate({
         ...resumeQuery.data?.resume,
         status: newPublishStatus,
       });
+
+      // Track deployment in history when going live
+      if (newPublishStatus === 'live') {
+        const response = await fetch('/api/portfolio/track-deployment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.error('Failed to track deployment');
+        }
+      }
     },
     onSuccess: () => {
       // Invalidate and refetch resume data
       queryClient.invalidateQueries({ queryKey: ['resume'] });
+      // Also invalidate dashboard data
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (error) => {
+      if (error instanceof Error && error.message === 'SUBSCRIPTION_REQUIRED') {
+        // Redirect to pricing page
+        router.push('/pricing');
+        toast.info('Please subscribe to publish your portfolio');
+      } else {
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to update status'
+        );
+      }
     },
   });
 

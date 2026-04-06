@@ -11,7 +11,7 @@ import { useUser } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Eye, Edit, Save, X } from 'lucide-react';
+import { Eye, Edit, Save, X, ArrowRight } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +25,7 @@ import {
 
 import { toast } from 'sonner';
 import { RefreshCw } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   const { user } = useUser();
@@ -47,11 +48,9 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     }
   }, [resumeQuery.data?.resume?.resumeData]);
 
-  // Check if resume data appears to be default/empty (generation failed)
   const isDefaultResumeData = () => {
     if (!localResumeData) return true;
     const { header, summary, workExperience, education } = localResumeData;
-    // Check for signs of default data
     const hasDefaultName = header?.name === 'user' || !header?.name;
     const hasDefaultAbout =
       header?.shortAbout?.includes('This is a short description') ||
@@ -84,12 +83,10 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   };
 
   const handleDiscardChanges = () => {
-    // Show confirmation dialog instead of immediately discarding
     setShowDiscardConfirmation(true);
   };
 
   const confirmDiscardChanges = () => {
-    // Reset to original data
     if (resumeQuery.data?.resume?.resumeData) {
       setLocalResumeData(resumeQuery.data?.resume?.resumeData);
     }
@@ -110,212 +107,190 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     !usernameQuery.data ||
     !localResumeData
   ) {
-    return <LoadingFallback message="Loading..." white />;
+    return <LoadingFallback message="Loading..." />;
   }
 
   const CustomLiveToast = () => (
-    <div className="w-fit min-w-[360px] h-[44px] items-center justify-between relative rounded-md bg-[#eaffea] border border-[#009505] shadow-md flex flex-row gap-2 px-2">
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-6 h-6"
-        preserveAspectRatio="none"
-      >
-        <rect width="24" height="24" rx="4" fill="#EAFFEA"></rect>
-        <path
-          d="M16.6668 8.5L10.2502 14.9167L7.3335 12"
-          stroke="#009505"
-          strokeWidth="1.3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        ></path>
-      </svg>
-      <p className="text-sm text-left text-[#003c02] mr-2">
-        <span className="hidden md:block"> Your website has been updated!</span>
-        <span className="md:hidden"> Website updated!</span>
+    <div className="w-fit min-w-[360px] h-[44px] items-center justify-between bg-[#1a1a1a] border border-[#1a1a1a] flex flex-row gap-2 px-4">
+      <p className="text-sm text-left text-white mr-2">
+        <span className="hidden md:block">Your website has been updated</span>
+        <span className="md:hidden">Website updated</span>
       </p>
       <a
         href={getNovaCVUrl(usernameQuery.data.username)}
         target="_blank"
-        className="flex justify-center items-center overflow-hidden gap-1 px-3 py-1 rounded bg-[#009505] h-[26px]"
+        className="flex justify-center items-center gap-1 px-3 py-1 bg-white h-[26px] text-xs font-medium text-[#1a1a1a] hover:bg-[#f0f0f0] transition-colors"
       >
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 10 10"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="flex-grow-0 flex-shrink-0 w-2.5 h-2.5 relative"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <path
-            d="M6.86768 2.39591L1.50684 7.75675L2.2434 8.49331L7.60425 3.13248V7.60425H8.64591V1.35425H2.39591V2.39591H6.86768Z"
-            fill="white"
-          ></path>
-        </svg>
-        <p className="flex-grow-0 flex-shrink-0 text-sm font-medium text-left text-white">
-          View
-        </p>
+        View
+        <ArrowRight className="h-3 w-3" strokeWidth={1.5} />
       </a>
     </div>
   );
 
   return (
-    <div className="w-full min-h-screen bg-background flex flex-col gap-4 pb-8">
-      {messageTip && (
-        <div className="max-w-3xl mx-auto w-full md:px-0 px-4">
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-4 flex items-start">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2 mt-0.5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <p>{messageTip}</p>
+    <div className="min-h-screen bg-[#faf9f7] text-[#1a1a1a]">
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <span className="text-xs uppercase tracking-[0.2em] text-[#666] mb-2 block">
+            Step 2 of 2
+          </span>
+          <h1 className="text-2xl font-light tracking-tight">
+            Preview & <span className="font-normal italic">publish</span>
+          </h1>
+        </motion.div>
+
+        {messageTip && (
+          <div className="mb-6 bg-white border border-[#e5e5e5] p-4">
+            <p className="text-sm text-[#666]">{messageTip}</p>
+          </div>
+        )}
+
+        {/* Action Bar */}
+        <div className="mb-8">
+          <PreviewActionbar
+            initialUsername={usernameQuery.data.username}
+            status={resumeQuery.data?.resume?.status}
+            onStatusChange={async (newStatus) => {
+              await toggleStatusMutation.mutateAsync(newStatus);
+              const isFirstTime = !localStorage.getItem('publishedSite');
+
+              if (isFirstTime && newStatus === 'live') {
+                setModalSiteLive(true);
+                localStorage.setItem('publishedSite', new Date().toDateString());
+              } else {
+                if (newStatus === 'draft') {
+                  toast.warning('Your website has been unpublished');
+                } else {
+                  toast.custom((t) => <CustomLiveToast />);
+                }
+              }
+            }}
+            isChangingStatus={toggleStatusMutation.isPending}
+          />
+        </div>
+
+        {/* Controls */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-6 border-b border-[#e5e5e5]">
+          <ToggleGroup
+            type="single"
+            value={isEditMode ? 'edit' : 'preview'}
+            onValueChange={(value) => setIsEditMode(value === 'edit')}
+            aria-label="View mode"
+            className="bg-white border border-[#e5e5e5]"
+          >
+            <ToggleGroupItem value="preview" aria-label="Preview mode" className="data-[state=on]:bg-[#1a1a1a] data-[state=on]:text-white">
+              <Eye className="h-4 w-4 mr-1" strokeWidth={1.5} />
+              <span>Preview</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="edit" aria-label="Edit mode" className="data-[state=on]:bg-[#1a1a1a] data-[state=on]:text-white">
+              <Edit className="h-4 w-4 mr-1" strokeWidth={1.5} />
+              <span>Edit</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+
+          <div className="flex gap-3">
+            {isDefaultResumeData() && (
+              <button
+                onClick={() => regenerateResumeMutation.mutate()}
+                disabled={regenerateResumeMutation.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2 border border-[#1a1a1a] text-[#1a1a1a] text-xs hover:bg-[#1a1a1a] hover:text-white transition-colors disabled:opacity-50"
+              >
+                {regenerateResumeMutation.isPending ? (
+                  <span className="animate-spin">
+                    <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
+                  </span>
+                ) : (
+                  <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
+                )}
+                <span>
+                  {regenerateResumeMutation.isPending ? 'Regenerating...' : 'Refresh'}
+                </span>
+              </button>
+            )}
+
+            {isEditMode && (
+              <>
+                <button
+                  onClick={handleDiscardChanges}
+                  disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-[#ccc] text-[#666] text-xs hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" strokeWidth={1.5} />
+                  <span>Discard</span>
+                </button>
+                <button
+                  onClick={handleSaveChanges}
+                  disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-white text-xs hover:bg-[#333] transition-colors disabled:opacity-50"
+                >
+                  {saveResumeDataMutation.isPending ? (
+                    <span className="animate-spin">⌛</span>
+                  ) : (
+                    <Save className="h-4 w-4" strokeWidth={1.5} />
+                  )}
+                  <span>
+                    {saveResumeDataMutation.isPending ? 'Saving...' : 'Save'}
+                  </span>
+                </button>
+              </>
+            )}
           </div>
         </div>
-      )}
-      <div className="max-w-3xl mx-auto w-full md:px-0 px-4">
-        <PreviewActionbar
-          initialUsername={usernameQuery.data.username}
-          status={resumeQuery.data?.resume?.status}
-          onStatusChange={async (newStatus) => {
-            await toggleStatusMutation.mutateAsync(newStatus);
-            const isFirstTime = !localStorage.getItem('publishedSite');
 
-            if (isFirstTime && newStatus === 'live') {
-              setModalSiteLive(true);
-              localStorage.setItem('publishedSite', new Date().toDateString());
-            } else {
-              if (newStatus === 'draft') {
-                toast.warning('Your website has been unpublished');
-              } else {
-                toast.custom((t) => <CustomLiveToast />);
-              }
-            }
+        {/* Resume Display */}
+        <div className="bg-white border border-[#e5e5e5]">
+          {isEditMode ? (
+            <EditResume
+              resume={localResumeData}
+              onChangeResume={handleResumeChange}
+            />
+          ) : (
+            <FullResume
+              resume={localResumeData}
+              profilePicture={user?.imageUrl}
+            />
+          )}
+        </div>
+
+        <AlertDialog
+          open={showDiscardConfirmation}
+          onOpenChange={setShowDiscardConfirmation}
+        >
+          <AlertDialogContent className="bg-white border border-[#e5e5e5]">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-normal">Discard Changes?</AlertDialogTitle>
+              <AlertDialogDescription className="text-[#666]">
+                Are you sure you want to discard your changes? This action cannot
+                be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="border-[#ccc] text-[#666] hover:bg-[#f0f0f0]">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDiscardChanges}
+                className="bg-[#1a1a1a] text-white hover:bg-[#333]"
+              >
+                Discard
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <PopupSiteLive
+          isOpen={showModalSiteLive}
+          websiteUrl={getNovaCVUrl(usernameQuery.data.username)}
+          onClose={() => {
+            setModalSiteLive(false);
           }}
-          isChangingStatus={toggleStatusMutation.isPending}
         />
       </div>
-
-      <div className="max-w-3xl mx-auto w-full flex flex-col md:flex-row justify-between items-center px-4 md:px-0 gap-4">
-        <ToggleGroup
-          type="single"
-          value={isEditMode ? 'edit' : 'preview'}
-          onValueChange={(value) => setIsEditMode(value === 'edit')}
-          aria-label="View mode"
-        >
-          <ToggleGroupItem value="preview" aria-label="Preview mode">
-            <Eye className="h-4 w-4 mr-1" />
-            <span>Preview</span>
-          </ToggleGroupItem>
-          <ToggleGroupItem value="edit" aria-label="Edit mode">
-            <Edit className="h-4 w-4 mr-1" />
-            <span>Edit</span>
-          </ToggleGroupItem>
-        </ToggleGroup>
-
-        {isDefaultResumeData() && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => regenerateResumeMutation.mutate()}
-            disabled={regenerateResumeMutation.isPending}
-            className="flex items-center gap-1.5"
-          >
-            {regenerateResumeMutation.isPending ? (
-              <span className="animate-spin">
-                <RefreshCw className="h-4 w-4" />
-              </span>
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            <span>
-              {regenerateResumeMutation.isPending ? 'Regenerating...' : 'Refresh Resume'}
-            </span>
-          </Button>
-        )}
-
-        {isEditMode && (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleDiscardChanges}
-              className="flex items-center gap-1"
-              disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
-            >
-              <X className="h-4 w-4" />
-              <span>Discard</span>
-            </Button>
-            <Button
-              onClick={handleSaveChanges}
-              className="flex items-center gap-1"
-              disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
-            >
-              {saveResumeDataMutation.isPending ? (
-                <span className="animate-spin">⌛</span>
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              <span>
-                {saveResumeDataMutation.isPending ? 'Saving...' : 'Save'}
-              </span>
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 bg-white flex items-center justify-between px-4">
-        {isEditMode ? (
-          <EditResume
-            resume={localResumeData}
-            onChangeResume={handleResumeChange}
-          />
-        ) : (
-          <FullResume
-            resume={localResumeData}
-            profilePicture={user?.imageUrl}
-          />
-        )}
-      </div>
-
-      <AlertDialog
-        open={showDiscardConfirmation}
-        onOpenChange={setShowDiscardConfirmation}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Discard Changes?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to discard your changes? This action cannot
-              be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDiscardChanges}>
-              Discard
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <PopupSiteLive
-        isOpen={showModalSiteLive}
-        websiteUrl={getNovaCVUrl(usernameQuery.data.username)}
-        onClose={() => {
-          setModalSiteLive(false);
-        }}
-      />
     </div>
   );
 }

@@ -8,6 +8,8 @@ const REDIS_KEYS = {
   RESUME_PREFIX: 'resume:', // Using colon is a Redis convention for namespacing
   USER_ID_PREFIX: 'user:id:',
   USER_NAME_PREFIX: 'user:name:',
+  SUBSCRIPTION_PREFIX: 'subscription:',
+  PORTFOLIO_HISTORY_PREFIX: 'portfolio:history:',
 } as const;
 
 // Define the file schema
@@ -220,5 +222,243 @@ export const updateUsername = async (
   } catch (error) {
     console.error('Username update failed:', error);
     return false;
+  }
+};
+
+// Subscription Types
+export type SubscriptionStatus =
+  | 'active'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'past_due'
+  | 'paused'
+  | 'trialing'
+  | 'unpaid';
+
+export interface SubscriptionData {
+  status: SubscriptionStatus;
+  customerId?: string;
+  subscriptionId?: string;
+  sessionId?: string;
+  currentPeriodEnd?: number;
+  cancelAtPeriodEnd?: boolean;
+  lastPaymentStatus?: 'succeeded' | 'failed';
+  lastPaymentDate?: number;
+  canceledAt?: number;
+  updatedAt: number;
+  [key: string]: string | number | boolean | undefined;
+}
+
+/**
+ * Get subscription data for a user
+ * @param userId User ID to look up
+ * @returns Promise resolving to subscription data or null
+ */
+export const getSubscription = async (
+  userId: string,
+): Promise<SubscriptionData | null> => {
+  try {
+    const subscription = await upstashRedis.hgetall<SubscriptionData>(
+      `${REDIS_KEYS.SUBSCRIPTION_PREFIX}${userId}`,
+    );
+    return subscription || null;
+  } catch (error) {
+    console.error('Error retrieving subscription:', error);
+    return null;
+  }
+};
+
+/**
+ * Check if user has an active subscription
+ * @param userId User ID to check
+ * @returns Promise resolving to boolean indicating active subscription
+ */
+export const hasActiveSubscription = async (userId: string): Promise<boolean> => {
+  const subscription = await getSubscription(userId);
+  if (!subscription) return false;
+  
+  // Consider subscription active if status is active or trialing
+  // and not set to cancel at period end
+  return (
+    (subscription.status === 'active' || subscription.status === 'trialing') &&
+    !subscription.cancelAtPeriodEnd
+  );
+};
+
+/**
+ * Store subscription data for a user
+ * @param userId User ID
+ * @param data Subscription data to store
+ * @returns Promise resolving to boolean indicating success
+ */
+export const storeSubscription = async (
+  userId: string,
+  data: Partial<SubscriptionData>,
+): Promise<boolean> => {
+  try {
+    await upstashRedis.hset(`${REDIS_KEYS.SUBSCRIPTION_PREFIX}${userId}`, {
+      ...data,
+      updatedAt: Date.now(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error storing subscription:', error);
+    return false;
+  }
+};
+
+/**
+ * Delete subscription data for a user
+ * @param userId User ID
+ * @returns Promise resolving to boolean indicating success
+ */
+export const deleteSubscription = async (userId: string): Promise<boolean> => {
+  try {
+    await upstashRedis.del(`${REDIS_KEYS.SUBSCRIPTION_PREFIX}${userId}`);
+    return true;
+  } catch (error) {
+    console.error('Error deleting subscription:', error);
+    return false;
+  }
+};
+
+// Portfolio History Types
+export interface PortfolioHistoryEntry {
+  id: string;
+  deployedAt: number;
+  status: 'live' | 'archived';
+  resumeData: ResumeData | null;
+  file: Resume['file'];
+  version: number;
+}
+
+export interface PortfolioHistory {
+  entries: PortfolioHistoryEntry[];
+  totalVersions: number;
+}
+
+/**
+ * Add a portfolio version to history when deployed
+ * @param userId User ID
+ * @param resume The resume data being deployed
+ * @returns Promise resolving to the history entry ID
+ */
+export const addPortfolioToHistory = async (
+  userId: string,
+  resume: Resume,
+): Promise<string | null> => {
+  try {
+    const historyKey = `${REDIS_KEYS.PORTFOLIO_HISTORY_PREFIX}${userId}`;
+    const history = await getPortfolioHistory(userId);
+
+    // Archive any currently live entries
+    const updatedEntries = history.entries.map((entry) => ({
+      ...entry,
+      status: 'archived' as const,
+    }));
+
+    // Create new history entry
+    const version = history.totalVersions + 1;
+    const entryId = `${userId}_v${version}_${Date.now()}`;
+    const newEntry: PortfolioHistoryEntry = {
+      id: entryId,
+      deployedAt: Date.now(),
+      status: 'live',
+      resumeData: resume.resumeData || null,
+      file: resume.file,
+      version,
+    };
+
+    // Keep only last 20 versions (arbitrary limit for storage efficiency)
+    const trimmedEntries = [newEntry, ...updatedEntries].slice(0, 20);
+
+    await upstashRedis.set(historyKey, {
+      entries: trimmedEntries,
+      totalVersions: version,
+    });
+
+    return entryId;
+  } catch (error) {
+    console.error('Error adding portfolio to history:', error);
+    return null;
+  }
+};
+
+/**
+ * Get portfolio history for a user
+ * @param userId User ID
+ * @returns Promise resolving to portfolio history
+ */
+export const getPortfolioHistory = async (
+  userId: string,
+): Promise<PortfolioHistory> => {
+  try {
+    const historyKey = `${REDIS_KEYS.PORTFOLIO_HISTORY_PREFIX}${userId}`;
+    const history = await upstashRedis.get<PortfolioHistory>(historyKey);
+    return history || { entries: [], totalVersions: 0 };
+  } catch (error) {
+    console.error('Error retrieving portfolio history:', error);
+    return { entries: [], totalVersions: 0 };
+  }
+};
+
+/**
+ * Redeploy a portfolio from history
+ * @param userId User ID
+ * @param historyEntryId The history entry ID to redeploy
+ * @returns Promise resolving to boolean indicating success
+ */
+export const redeployPortfolio = async (
+  userId: string,
+  historyEntryId: string,
+): Promise<boolean> => {
+  try {
+    const history = await getPortfolioHistory(userId);
+    const entry = history.entries.find((e) => e.id === historyEntryId);
+
+    if (!entry) {
+      console.error('History entry not found:', historyEntryId);
+      return false;
+    }
+
+    // Get current resume to preserve non-history fields
+    const currentResume = await getResume(userId);
+
+    // Create the redeployed resume
+    const redeployedResume: Resume = {
+      status: 'live',
+      file: entry.file,
+      fileContent: currentResume?.fileContent,
+      resumeData: entry.resumeData,
+    };
+
+    // Store the redeployed resume
+    await storeResume(userId, redeployedResume);
+
+    // Add this redeployment to history
+    await addPortfolioToHistory(userId, redeployedResume);
+
+    return true;
+  } catch (error) {
+    console.error('Error redeploying portfolio:', error);
+    return false;
+  }
+};
+
+/**
+ * Get currently live portfolio from history
+ * @param userId User ID
+ * @returns Promise resolving to live history entry or null
+ */
+export const getLivePortfolioFromHistory = async (
+  userId: string,
+): Promise<PortfolioHistoryEntry | null> => {
+  try {
+    const history = await getPortfolioHistory(userId);
+    return history.entries.find((entry) => entry.status === 'live') || null;
+  } catch (error) {
+    console.error('Error getting live portfolio:', error);
+    return null;
   }
 };

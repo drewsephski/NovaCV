@@ -1,41 +1,45 @@
+'use client';
+
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { usePathname } from 'next/navigation';
 
 export function TopMenu() {
+  const pathname = usePathname();
+  
   return (
-    <>
-      <header className="w-full py-5 px-6 md:px-12 flex justify-between items-center max-w-6xl mx-auto h-[72px]">
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-semibold tracking-tight text-white group-hover:text-white/80 transition-colors duration-200">
-            NovaCV
-          </span>
-        </Link>
+    <header className="w-full py-6 px-8 md:px-16 lg:px-24 flex justify-between items-center max-w-7xl mx-auto">
+      <Link href="/" className="flex items-center gap-2 text-[#1a1a1a] hover:text-[#666] transition-colors duration-200">
+        <span className="text-xl font-light tracking-tight">
+          Nova<span className="font-normal italic">CV</span>
+        </span>
+      </Link>
 
-        <div className="flex items-center">
-          <SignedIn>
-            <UserButton
-              appearance={{
-                elements: {
-                  userButtonTrigger: 'focus:shadow-none focus:ring-0',
-                },
-              }}
-            />
-          </SignedIn>
-          <SignedOut>
-            <div className="flex flex-row gap-3">
-              <Link href="/upload">
-                <Button
-                  variant="default"
-                  className="text-sm font-medium py-2 px-5 bg-white text-black hover:bg-white/90 rounded-lg shadow-sm transition-all duration-200 hover:shadow-md"
-                >
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </SignedOut>
-        </div>
-      </header>
-    </>
+      <div className="flex items-center gap-6">
+        <SignedIn>
+          <Link 
+            href="/dashboard" 
+            className="text-xs uppercase tracking-[0.15em] text-[#666] hover:text-[#1a1a1a] transition-colors"
+          >
+            Dashboard
+          </Link>
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonTrigger: 'focus:shadow-none focus:ring-0',
+              },
+            }}
+          />
+        </SignedIn>
+        <SignedOut>
+          <Link 
+            href="/upload"
+            className="text-xs uppercase tracking-[0.15em] text-[#666] hover:text-[#1a1a1a] transition-colors"
+          >
+            Get Started
+          </Link>
+        </SignedOut>
+      </div>
+    </header>
   );
 }

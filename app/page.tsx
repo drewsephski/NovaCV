@@ -1,185 +1,205 @@
+'use client';
+
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { TopMenu } from '../components/TopMenu';
 import { Footer } from '../components/Footer';
-import { BlurFade } from '@/components/ui/BlurFade';
+import { motion } from 'framer-motion';
+import { ArrowRight, Upload } from 'lucide-react';
 
 export default function Home() {
   return (
-    <>
+    <div className="min-h-screen bg-[#faf9f7] text-[#1a1a1a]">
       <TopMenu />
 
-      <section className="flex-1 flex flex-col relative overflow-hidden">
-        {/* Subtle background glows */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-white/[0.015] rounded-full blur-[100px] pointer-events-none" />
+      {/* Hero Section - Editorial Layout */}
+      <section className="relative">
+        <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 min-h-[85vh] items-center">
+            
+            {/* Left Column - Typography */}
+            <div className="lg:col-span-5 flex flex-col justify-center py-16 lg:py-0 order-2 lg:order-1">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <span className="text-xs uppercase tracking-[0.2em] text-[#666] mb-6 block">
+                  Professional Portfolio Generator
+                </span>
+              </motion.div>
 
-        <div className="flex flex-col min-h-[80vh] relative z-10">
-          {/* Main content */}
-          <div className="flex-1 flex flex-col lg:flex-row max-w-6xl mx-auto items-center px-6 md:px-12 py-12 lg:py-0 gap-12 lg:gap-16">
-            {/* Left side - Call to action */}
-            <div className="w-full lg:w-[50%] flex flex-col justify-center items-center lg:items-start">
-              <div className="max-w-lg text-center lg:text-left">
-                <BlurFade delay={0.1}>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-muted-foreground text-sm mb-8">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/40" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white/60" />
-                    </span>
-                    100% free & open source
-                  </div>
-                </BlurFade>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                className="text-5xl sm:text-6xl lg:text-[4.5rem] font-light leading-[0.95] tracking-tight mb-8"
+              >
+                Your resume,
+                <br />
+                <span className="font-normal italic">reimagined.</span>
+              </motion.h1>
 
-                <BlurFade delay={0.2}>
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6 text-white">
-                    Turn your
-                    <span className="gradient-text"> LinkedIn</span>
-                    <br className="hidden sm:block" />
-                    {' '}into a website
-                    <br className="hidden sm:block" />
-                    <span className="text-muted-foreground">instantly</span>
-                  </h1>
-                </BlurFade>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="text-lg text-[#555] leading-relaxed max-w-md mb-10"
+              >
+                Upload your LinkedIn PDF. Get a refined, professional website 
+                in seconds. No templates. No generic designs.
+              </motion.p>
 
-                <BlurFade delay={0.3}>
-                  <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-md">
-                    Upload your resume or LinkedIn PDF and get a beautiful,
-                    professional website in seconds.
-                  </p>
-                </BlurFade>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="flex items-center gap-6"
+              >
+                <Link href="/upload">
+                  <button className="group inline-flex items-center gap-3 px-6 py-3 bg-[#1a1a1a] text-white text-sm tracking-wide hover:bg-[#333] transition-colors duration-300">
+                    Upload Resume
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.5} />
+                  </button>
+                </Link>
+                
+              </motion.div>
 
-                <BlurFade delay={0.4}>
-                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                    <Link href="/upload">
-                      <button className="group relative inline-flex items-center justify-center gap-2 h-9 px-5 text-sm font-medium text-black bg-white rounded-md overflow-hidden transition-all duration-200 ease-out hover:bg-neutral-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] active:scale-[0.98]">
-                        <svg
-                          className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="17 8 12 3 7 8" />
-                          <line x1="12" x2="12" y1="3" y2="15" />
-                        </svg>
-                        Upload Resume
-                      </button>
-                    </Link>
-                  </div>
-                </BlurFade>
-
-                <BlurFade delay={0.5}>
-                  <p className="text-sm text-muted-foreground/60 mt-6">
-                    Takes less than a minute
-                  </p>
-                </BlurFade>
-              </div>
-            </div>
-
-            {/* Right side - Preview */}
-            <div className="w-full lg:w-[50%] flex justify-center items-center relative">
-              <BlurFade delay={0.35} className="w-full">
-                <div className="relative">
-                  {/* Decorative glow */}
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/[0.03] rounded-full blur-3xl" />
-                  <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-white/[0.02] rounded-full blur-3xl" />
-
-                  {/* Main image container */}
-                  <div className="relative bg-card rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50 glow-subtle">
-                    <img
-                      src="/cv-home.png"
-                      className="w-full h-auto object-cover"
-                      alt="CV Website Preview"
-                    />
-
-                    {/* Subtle overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-                  </div>
-
-                  {/* Floating badge */}
-                  <div className="absolute -bottom-4 -right-4 lg:right-8 bg-card rounded-lg border border-white/10 p-3 flex items-center gap-3 animate-fade-in-up shadow-xl" style={{ animationDelay: '0.6s' }}>
-                    <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center border border-white/10">
-                      <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">AI Generated</p>
-                      <p className="text-xs text-muted-foreground">In seconds</p>
-                    </div>
-                  </div>
+              {/* Stats - Minimal */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+                className="flex items-center gap-12 mt-16 pt-8 border-t border-[#e5e5e5]"
+              >
+                <div>
+                  <p className="text-2xl font-light text-[#1a1a1a]">10k+</p>
+                  <p className="text-xs text-[#888] mt-1">Portfolios created</p>
                 </div>
-              </BlurFade>
+                <div>
+                  <p className="text-2xl font-light text-[#1a1a1a]">&lt;30s</p>
+                  <p className="text-xs text-[#888] mt-1">Average build time</p>
+                </div>
+              </motion.div>
             </div>
-          </div>
-        </div>
 
-        {/* Features section */}
-        <div className="relative z-10 border-t border-white/[0.06] bg-white/[0.01]">
-          <div className="max-w-6xl mx-auto px-6 md:px-12 py-20">
-            <BlurFade>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <path d="M12 18v-6" />
-                        <path d="M9 15l3-3 3 3" />
-                      </svg>
-                    ),
-                    title: 'PDF Upload',
-                    description: 'Simply upload your LinkedIn PDF or resume and we handle the rest.',
-                  },
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                        <line x1="3" x2="21" y1="9" y2="9" />
-                        <line x1="9" x2="9" y1="21" y2="9" />
-                      </svg>
-                    ),
-                    title: 'Beautiful Design',
-                    description: 'Get a professionally designed website that showcases your experience.',
-                  },
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="2" x2="22" y1="12" y2="12" />
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                      </svg>
-                    ),
-                    title: 'Instant Share',
-                    description: 'Get a custom URL to share your professional profile with anyone.',
-                  },
-                ].map((feature, i) => (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center md:items-start text-center md:text-left p-6 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 group"
-                  >
-                    <div className="w-10 h-10 bg-white/[0.05] rounded-lg flex items-center justify-center text-white/70 mb-4 border border-white/[0.08] group-hover:border-white/20 transition-colors">
-                      {feature.icon}
-                    </div>
-                    <h3 className="font-semibold text-lg text-white mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </BlurFade>
+            {/* Right Column - Preview Image */}
+            <div className="lg:col-span-7 flex items-center justify-center lg:justify-end py-8 lg:py-0 order-1 lg:order-2">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className="relative w-full max-w-xl"
+              >
+                {/* Image container with subtle shadow */}
+                <div className="relative shadow-[0_4px_40px_-12px_rgba(0,0,0,0.015)]">
+                  <img
+                    src="/cv-home.png"
+                    className="w-full h-auto"
+                    alt="Portfolio preview"
+                  />
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Feature Statement - Editorial Style */}
+      <section className="py-32 lg:py-40">
+        <div className="max-w-5xl mx-auto px-8 md:px-16">
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-2xl sm:text-3xl lg:text-[2.75rem] font-light leading-[1.3] tracking-tight text-[#1a1a1a] text-center"
+          >
+            Transform your professional presence with a website that reflects your unique experience.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-2xl sm:text-3xl lg:text-[2.75rem] font-light leading-[1.3] tracking-tight text-[#666] text-center mt-4"
+          >
+            Stand out from the crowd with a personalized portfolio that tells your story.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="w-24 h-px bg-[#ccc] mx-auto mt-16 origin-center"
+          />
+        </div>
+      </section>
+
+      {/* How it Works - Clean List */}
+      <section className="py-20 border-t border-[#e5e5e5]">
+        <div className="max-w-6xl mx-auto px-8 md:px-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+            {[
+              { num: '01', title: 'Upload', desc: 'PDF or LinkedIn export' },
+              { num: '02', title: 'Generate', desc: 'AI extracts and designs' },
+              { num: '03', title: 'Share', desc: 'Custom URL ready instantly' },
+            ].map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="flex flex-col"
+              >
+                <span className="text-xs text-[#999] mb-3">{step.num}</span>
+                <h3 className="text-xl font-normal mb-2">{step.title}</h3>
+                <p className="text-sm text-[#666]">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-[#1a1a1a] text-white">
+        <div className="max-w-4xl mx-auto px-8 md:px-16 text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl font-light mb-6"
+          >
+            Ready for your new portfolio?
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="text-[#888] mb-10"
+          >
+            Join professionals who have elevated their online presence.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            <Link href="/upload">
+              <button className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-[#1a1a1a] text-sm tracking-wide hover:bg-[#f0f0f0] transition-colors duration-300">
+                <Upload className="h-4 w-4" strokeWidth={1.5} />
+                Create Your Portfolio
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.5} />
+              </button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       <Footer />
-    </>
+    </div>
   );
 }

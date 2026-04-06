@@ -3,6 +3,7 @@ import { Resume, ResumeData } from '@/lib/server/redisActions';
 import { useUploadThing } from '@/lib/uploadthing';
 import { PublishStatuses } from '@/components/PreviewActionbar';
 import { ResumeDataSchema } from '@/lib/resume';
+import { toast } from 'sonner';
 
 // Fetch resume data
 const fetchResume = async (): Promise<{
@@ -41,6 +42,17 @@ const checkUsernameAvailability = async (
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to check username availability');
+  }
+  return await response.json();
+};
+
+const regenerateResume = async (): Promise<{ resumeData: ResumeData }> => {
+  const response = await fetch('/api/resume/regenerate', {
+    method: 'POST',
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to regenerate resume');
   }
   return await response.json();
 };
@@ -123,10 +135,13 @@ export function useUserActions() {
 
     queryClient.setQueryData(['resume'], (oldData: any) => ({
       ...oldData,
-      ...newResume,
+      resume: newResume,
     }));
 
     await internalResumeUpdate(newResume);
+    
+    // Refetch to ensure server data is in sync
+    await queryClient.refetchQueries({ queryKey: ['resume'] });
   };
 
   // Mutation for updating resume
@@ -169,6 +184,21 @@ export function useUserActions() {
     onSuccess: () => {
       // Invalidate and refetch username availability data
       queryClient.invalidateQueries({ queryKey: ['username-availability'] });
+    },
+  });
+
+  // Mutation for regenerating resume from stored PDF
+  const regenerateResumeMutation = useMutation({
+    mutationFn: regenerateResume,
+    onSuccess: () => {
+      // Invalidate and refetch resume data
+      queryClient.invalidateQueries({ queryKey: ['resume'] });
+      toast.success('Resume regenerated successfully');
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to regenerate resume'
+      );
     },
   });
 
@@ -218,5 +248,6 @@ export function useUserActions() {
     updateUsernameMutation,
     checkUsernameMutation,
     saveResumeDataMutation,
+    regenerateResumeMutation,
   };
 }

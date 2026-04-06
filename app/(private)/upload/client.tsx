@@ -158,12 +158,16 @@ export default function UploadPageClient() {
             <Button
               size="lg"
               className="relative bg-gray-800 hover:bg-gray-900 text-white font-medium transition-all duration-200 hover:shadow-lg hover:shadow-terracotta/25 disabled:opacity-50"
-              disabled={fileState.status === 'empty' || isUpdating}
-              onClick={() => router.push('/pdf')}
+              disabled={fileState.status === 'empty' || isUpdating || !resume?.file}
+              onClick={() => {
+                if (resume?.file) {
+                  router.push('/pdf');
+                }
+              }}
             >
               {isUpdating ? (
                 <>
-                  <CustomSpinner className="h-4 w-4 mr-2" />
+                  <CustomSpinner className="h-4 w-4 mr-2" white />
                   Processing...
                 </>
               ) : (
@@ -174,7 +178,7 @@ export default function UploadPageClient() {
               )}
             </Button>
           </div>
-          {fileState.status === 'empty' && (
+          {(fileState.status === 'empty' || !resume?.file) && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

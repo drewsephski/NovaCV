@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 import { toast } from 'sonner';
+import { RefreshCw } from 'lucide-react';
 
 export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   const { user } = useUser();
@@ -32,6 +33,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     toggleStatusMutation,
     usernameQuery,
     saveResumeDataMutation,
+    regenerateResumeMutation,
   } = useUserActions();
   const [showModalSiteLive, setModalSiteLive] = useState(false);
   const [localResumeData, setLocalResumeData] = useState<ResumeData>();
@@ -45,7 +47,21 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     }
   }, [resumeQuery.data?.resume?.resumeData]);
 
-  console.log('resumeQuery', resumeQuery.data);
+  // Check if resume data appears to be default/empty (generation failed)
+  const isDefaultResumeData = () => {
+    if (!localResumeData) return true;
+    const { header, summary, workExperience, education } = localResumeData;
+    // Check for signs of default data
+    const hasDefaultName = header?.name === 'user' || !header?.name;
+    const hasDefaultAbout =
+      header?.shortAbout?.includes('This is a short description') ||
+      header?.shortAbout?.includes('Add your skills');
+    const hasDefaultSummary = summary?.includes('You should add a summary');
+    const hasNoExperience = !workExperience || workExperience.length === 0;
+    const hasNoEducation = !education || education.length === 0;
+
+    return hasDefaultName && (hasDefaultAbout || hasDefaultSummary || hasNoExperience);
+  };
 
   const handleSaveChanges = async () => {
     if (!localResumeData) {
@@ -94,7 +110,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     !usernameQuery.data ||
     !localResumeData
   ) {
-    return <LoadingFallback message="Loading..." />;
+    return <LoadingFallback message="Loading..." white />;
   }
 
   const CustomLiveToast = () => (
@@ -207,6 +223,27 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
             <span>Edit</span>
           </ToggleGroupItem>
         </ToggleGroup>
+
+        {isDefaultResumeData() && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => regenerateResumeMutation.mutate()}
+            disabled={regenerateResumeMutation.isPending}
+            className="flex items-center gap-1.5"
+          >
+            {regenerateResumeMutation.isPending ? (
+              <span className="animate-spin">
+                <RefreshCw className="h-4 w-4" />
+              </span>
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            <span>
+              {regenerateResumeMutation.isPending ? 'Regenerating...' : 'Refresh Resume'}
+            </span>
+          </Button>
+        )}
 
         {isEditMode && (
           <div className="flex gap-2">

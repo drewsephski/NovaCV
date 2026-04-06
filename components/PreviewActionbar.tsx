@@ -11,7 +11,7 @@ export type PublishStatuses = 'draft' | 'live';
 
 export default function PreviewActionbar({
   initialUsername = '',
-  prefix = 'novacv.com/',
+  prefix = 'novacv.dev/',
   status,
   onStatusChange,
   isChangingStatus,

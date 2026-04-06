@@ -34,7 +34,7 @@ export async function generateMetadata({
       description: resume.resumeData.summary,
       images: [
         {
-          url: `https://novacv.com/${username}/og`,
+          url: `https://novacv.dev/${username}/og`,
           width: 1200,
           height: 630,
           alt: 'NovaCV Profile',
@@ -69,7 +69,7 @@ export default async function ProfilePage({
     email:
       resume.resumeData.header.contacts.email &&
       `mailto:${resume.resumeData.header.contacts.email}`,
-    url: `https://novacv.com/${username}`,
+    url: `https://novacv.dev/${username}`,
     skills: resume.resumeData.header.skills,
   };
 

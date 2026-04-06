@@ -7,7 +7,7 @@ const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY ?? '',
   baseURL: 'https://openrouter.ai/api/v1',
   headers: {
-    'HTTP-Referer': 'https://novacv.com',
+    'HTTP-Referer': 'https://novacv.dev',
     'X-Title': 'NovaCV',
   },
 });

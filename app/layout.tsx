@@ -9,7 +9,7 @@ import { Metadata } from 'next';
 import PlausibleProvider from 'next-plausible';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://novacv.com'),
+  metadataBase: new URL('https://novacv.dev'),
   title: 'NovaCV - Turn your LinkedIn into a website',
   description:
     'LinkedIn to Website in one click. Get a beautiful professional website instantly.',
@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <PlausibleProvider domain="novacv.com">
+      <PlausibleProvider domain="novacv.dev">
         <ReactQueryClientProvider>
           <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
             <body className={`${GeistSans.className} min-h-screen flex flex-col bg-background`}>

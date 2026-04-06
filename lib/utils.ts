@@ -9,7 +9,7 @@ export function getNovaCVUrl(username: string) {
   const domain =
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000'
-      : 'https://novacv.com';
+      : 'https://novacv.dev';
   return `${domain}/${username}`;
 }
 

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://novacv.com">Live Site</a>
+  <a href="https://novacv.dev">Live Site</a>
 </p>
 
 ## Tech Stack

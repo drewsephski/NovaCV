@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const name = resume?.resumeData?.header?.name;
     const role = resume?.resumeData?.header?.shortAbout;
     const location = resume?.resumeData?.header?.location;
-    const website = `www.novacv.com/${username}`;
+    const website = `www.novacv.dev/${username}`;
 
     // Use profile image from Clerk user
     const profileImageUrl = clerkUser?.imageUrl;

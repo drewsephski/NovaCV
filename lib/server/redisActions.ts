@@ -477,20 +477,33 @@ export const deletePortfolioHistoryEntry = async (
     const historyKey = `${REDIS_KEYS.PORTFOLIO_HISTORY_PREFIX}${userId}`;
     const history = await getPortfolioHistory(userId);
 
-    // Filter out the entry to delete
-    const updatedEntries = history.entries.filter((entry) => entry.id !== historyEntryId);
-
-    // Check if entry was found and removed
-    if (updatedEntries.length === history.entries.length) {
+    // Find the entry being deleted to check if it's live
+    const entryToDelete = history.entries.find((entry) => entry.id === historyEntryId);
+    
+    if (!entryToDelete) {
       console.error('History entry not found:', historyEntryId);
       return false;
     }
+
+    // Filter out the entry to delete
+    const updatedEntries = history.entries.filter((entry) => entry.id !== historyEntryId);
 
     // Update history with remaining entries
     await upstashRedis.set(historyKey, {
       entries: updatedEntries,
       totalVersions: history.totalVersions,
     });
+
+    // If the deleted entry was live, also unpublish the resume
+    if (entryToDelete.status === 'live') {
+      const currentResume = await getResume(userId);
+      if (currentResume) {
+        await storeResume(userId, {
+          ...currentResume,
+          status: 'draft',
+        });
+      }
+    }
 
     return true;
   } catch (error) {

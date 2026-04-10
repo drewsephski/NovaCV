@@ -1,4 +1,4 @@
-import { generateObject } from 'ai';
+import { generateText, Output, APICallError } from 'ai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { ResumeDataSchema } from '@/lib/resume';
 import dedent from 'dedent';
@@ -12,14 +12,38 @@ const openrouter = createOpenRouter({
   },
 });
 
-export const generateResumeObject = async (resumeText: string) => {
-  const startTime = Date.now();
-  try {
-    const { object } = await generateObject({
-      model: openrouter('openrouter/free'),
-      maxRetries: 2,
-       schema: ResumeDataSchema,
-      prompt: dedent(`You are an expert resume writer. Generate a resume object from the following resume text with this EXACT structure:
+// Primary timeout - aggressive to allow fallback attempts
+const PRIMARY_TIMEOUT_MS = 12000; // 12 seconds for first attempt
+const FALLBACK_TIMEOUT_MS = 18000; // 18 seconds for fallback
+const MAX_TOTAL_DURATION_MS = 38000; // Hard stop before 40s Vercel limit
+
+// Model fallback chain - ordered by reliability/cost balance
+const MODELS = [
+  'google/gemma-3-4b-it:free',       // Fast, lightweight free model
+  'openrouter/free',                 // Default free tier (provider-chosen)
+  'google/gemma-3-12b-it:free',      // Larger but still free
+] as const;
+
+// Sleep helper for delay between retries
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Generate with a specific model and timeout
+async function tryGenerateWithModel(
+  resumeText: string,
+  modelId: string,
+  timeoutMs: number,
+  attemptNumber: number
+) {
+  console.log(`[Attempt ${attemptNumber}] Trying model: ${modelId} with timeout ${timeoutMs}ms`);
+
+  const result = await generateText({
+    model: openrouter(modelId),
+    maxRetries: 0, // Handle retries manually for better control
+    timeout: timeoutMs,
+    output: Output.object({
+      schema: ResumeDataSchema,
+    }),
+    prompt: dedent(`You are an expert resume writer. Generate a resume object from the following resume text with this EXACT structure:
 
     {
       "header": {
@@ -90,14 +114,66 @@ export const generateResumeObject = async (resumeText: string) => {
     `),
     });
 
-    const endTime = Date.now();
-    console.log(
-      `Generating resume object took ${(endTime - startTime) / 1000} seconds`
-    );
+  return result.output;
+}
 
-    return object;
-  } catch (error) {
-    console.warn('Impossible generating resume object', error);
-    return undefined;
+export const generateResumeObject = async (resumeText: string) => {
+  const startTime = Date.now();
+  const errors: Array<{ model: string; error: string; duration: number }> = [];
+
+  // Try each model in the fallback chain
+  for (let modelIndex = 0; modelIndex < MODELS.length; modelIndex++) {
+    const modelId = MODELS[modelIndex];
+    const isFallback = modelIndex > 0;
+    const timeoutMs = isFallback ? FALLBACK_TIMEOUT_MS : PRIMARY_TIMEOUT_MS;
+
+    // Check if we're approaching the hard limit
+    const elapsed = Date.now() - startTime;
+    if (elapsed + timeoutMs > MAX_TOTAL_DURATION_MS) {
+      console.warn(`[Model ${modelIndex}] Skipping - would exceed max duration. Elapsed: ${elapsed}ms`);
+      break;
+    }
+
+    // Try with exponential backoff between attempts
+    for (let retryAttempt = 0; retryAttempt < 2; retryAttempt++) {
+      const attemptNumber = modelIndex * 2 + retryAttempt + 1;
+      const attemptStart = Date.now();
+
+      try {
+        const result = await tryGenerateWithModel(resumeText, modelId, timeoutMs, attemptNumber);
+        const duration = Date.now() - attemptStart;
+        console.log(`✓ Successfully generated resume with ${modelId} in ${duration}ms`);
+        return result;
+      } catch (error) {
+        const duration = Date.now() - attemptStart;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push({ model: modelId, error: errorMessage, duration });
+
+        // Log specific error type
+        if (error instanceof APICallError) {
+          console.warn(`✗ API error with ${modelId}: ${error.statusCode} - ${errorMessage}`);
+        } else if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('timeout'))) {
+          console.warn(`✗ Timeout with ${modelId} after ${duration}ms`);
+        } else {
+          console.warn(`✗ Failed with ${modelId} after ${duration}ms:`, errorMessage);
+        }
+
+        // Don't retry on certain errors
+        if (error instanceof APICallError && error.statusCode === 429) {
+          console.log('Rate limited - waiting 2s before retry...');
+          await sleep(2000);
+        } else if (retryAttempt < 1) {
+          // Brief pause before retry
+          await sleep(500);
+        }
+      }
+    }
   }
+
+  const totalDuration = Date.now() - startTime;
+  console.error(`All models failed after ${totalDuration}ms. Error summary:`,
+    errors.map(e => `${e.model}: ${e.error} (${e.duration}ms)`)
+  );
+
+  return undefined;
 };

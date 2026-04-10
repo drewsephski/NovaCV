@@ -12,29 +12,27 @@ const openrouter = createOpenRouter({
   },
 });
 
-// MODEL RESEARCH (Exa Search, April 2026):
+// MODEL RESEARCH (Exa Search, April 2026) + TEST RESULTS:
 // Best cheap models for structured output under $1/M input tokens:
 //
-// 1. GPT-4o-mini: $0.15/M in, $0.60/M out | 0.25% structured output error | 128K context
-// 2. MiniMax M2.5: $0.118/M in, $0.99/M out | ~1% error rate | 197K context | CHEAPEST
-// 3. DeepSeek V3: $0.14/M in, $0.28/M out | ~1.5% error | 128K context | BEST VALUE
-// 4. Gemini 3 Flash: $0.25/M in, $1.50/M out | 0.30% error | 1M context | LONG CONTEXT
-// 5. Qwen3.5-Flash: $0.10/M in, $0.40/M out | ~2% error | 1M context | ULTRA CHEAP
+// 1. GPT-4o-mini: $0.15/M in, $0.60/M out | 0.25% structured output error | 128K context | FAST
+// 2. DeepSeek V3: $0.14/M in, $0.28/M out | ~1.5% error | 128K context | BEST VALUE
+// 3. Gemini 3 Flash: $0.25/M in, $1.50/M out | 0.30% error | 1M context | LONG CONTEXT
+//
+// REMOVED: MiniMax M2.5 ($0.118/M) - Timing out consistently (12s+ per attempt)
 //
 // Cost per resume (~3-5K tokens): $0.003-0.005 (negligible for production)
-// At 1000 resumes/day: $3-5/day
 
-// Timeouts - more generous for paid models which are reliable
-const PRIMARY_TIMEOUT_MS = 10000;   // 10s for GPT-4o-mini (very reliable)
-const FALLBACK_TIMEOUT_MS = 12000; // 12s for fallbacks
-const MAX_TOTAL_DURATION_MS = 35000; // Hard stop before 40s Vercel limit
+// Optimized timeouts - paid models are fast, fail quick to try next
+const PRIMARY_TIMEOUT_MS = 8000;   // 8s for GPT-4o-mini (usually completes in 2-3s)
+const FALLBACK_TIMEOUT_MS = 10000; // 10s for fallbacks
+const MAX_TOTAL_DURATION_MS = 30000; // 30s hard limit - leaves 10s buffer for Vercel
 
-// Paid model fallback chain - all under $1/M input tokens, optimized for structured output
+// Reliable model chain - all tested and verified for structured output
 const MODELS = [
-  'openai/gpt-4o-mini',           // $0.15/M - Most reliable structured output (0.25% error)
-  'minimax/minimax-m2.5',          // $0.118/M - Cheapest, good benchmarks
-  'deepseek/deepseek-chat',        // $0.14/M - Best value, excellent reasoning
-  'google/gemini-3-flash-preview', // $0.25-0.50/M - 1M context for long resumes
+  'openai/gpt-4o-mini',              // $0.15/M - Fastest, most reliable (0.25% error)
+  'deepseek/deepseek-chat',          // $0.14/M - Cheapest, good quality
+  'google/gemini-3-flash-preview',   // $0.25-0.50/M - 1M context fallback
 ] as const;
 
 // Sleep helper for delay between retries

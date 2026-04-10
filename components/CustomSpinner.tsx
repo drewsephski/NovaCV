@@ -6,7 +6,7 @@ interface CustomSpinnerProps {
 }
 
 export const CustomSpinner = ({ className, white = false }: CustomSpinnerProps) => {
-  const fillColor = white ? 'white' : 'black';
+  const fillColor = white ? 'black' : '#1a1a1a';
   return (
     <svg
       width="28"

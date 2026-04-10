@@ -56,9 +56,9 @@ function SuccessContent() {
       <BlurFade delay={0.1}>
         <div className="text-center max-w-md">
           <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Check className="w-8 h-8 text-white" />
+            <Check className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-semibold text-white mb-4">
+          <h1 className="text-3xl font-semibold mb-4">
             Welcome aboard!
           </h1>
           <p className="text-muted-foreground mb-8">

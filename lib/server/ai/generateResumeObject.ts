@@ -17,15 +17,20 @@ const PRIMARY_TIMEOUT_MS = 8000;   // 8s - fail fast on first attempt
 const FALLBACK_TIMEOUT_MS = 12000; // 12s - allow more time for fallbacks
 const MAX_TOTAL_DURATION_MS = 35000; // Hard stop before 40s Vercel limit
 
-// Model fallback chain - researched reliable free models from OpenRouter
-// Ordered by: speed first, then capability as fallback
+// PRODUCTION RECOMMENDATION: Use a paid model instead of free tier
+// Free models are heavily rate-limited and unreliable. For production, use:
+// - openai('gpt-4o-mini') - $0.15/1M tokens, extremely reliable, fast
+// - anthropic('claude-3-haiku-20240307') - similar price, excellent structured output
+// Cost per resume: ~$0.01-0.02 (negligible for production use)
+//
+// Current fallback chain uses free models but will hit rate limits under load:
 const MODELS = [
-  'meta-llama/llama-3.2-3b-instruct:free',  // Small, fast, reliable structured output
-  'nvidia/nemotron-nano-9b-v2:free',         // Good balance of speed and capability
-  'google/gemma-3-4b-it:free',              // Lightweight, decent JSON following
-  'openai/gpt-oss-20b:free',                // OpenAI model, generally reliable
-  'openrouter/free',                        // Provider's choice (dynamic)
-  'google/gemma-3-12b-it:free',             // Larger, slower but more capable
+  'meta-llama/llama-3.2-3b-instruct:free',  // Often rate-limited by Venice
+  'nvidia/nemotron-nano-9b-v2:free',        // Can timeout when overloaded
+  'google/gemma-3-4b-it:free',              // Usually reliable but slower
+  'openai/gpt-oss-20b:free',                // New, may have quota issues
+  'openrouter/free',                        // Random provider, unpredictable
+  'google/gemma-3-12b-it:free',             // Larger, slower fallback
 ] as const;
 
 // Sleep helper for delay between retries
@@ -162,12 +167,23 @@ export const generateResumeObject = async (resumeText: string) => {
           console.warn(`✗ Failed with ${modelId} after ${duration}ms:`, errorMessage);
         }
 
-        // Don't retry on certain errors
-        if (error instanceof APICallError && error.statusCode === 429) {
-          console.log('Rate limited - waiting 2s before retry...');
-          await sleep(2000);
+        // Handle specific error types with appropriate delays
+        const isRateLimit = error instanceof APICallError &&
+          (error.statusCode === 429 || error.message?.includes('rate-limited') || error.message?.includes('rate limit'));
+        const isTimeout = error instanceof Error &&
+          (error.name === 'AbortError' || error.message?.includes('timeout'));
+
+        if (isRateLimit) {
+          // Rate limits need longer delays - free tier is heavily constrained
+          const delayMs = 3000 + (modelIndex * 1000); // 3s, 4s, 5s... increasing
+          console.log(`Rate limited on ${modelId} - waiting ${delayMs}ms before retry...`);
+          await sleep(delayMs);
+        } else if (isTimeout) {
+          // Timeouts suggest the model is overloaded - try once more with longer timeout
+          console.log(`Timeout on ${modelId} - will retry with same timeout...`);
+          await sleep(1000);
         } else if (retryAttempt < 1) {
-          // Brief pause before retry
+          // Brief pause for other errors
           await sleep(500);
         }
       }

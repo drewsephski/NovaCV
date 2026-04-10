@@ -12,16 +12,20 @@ const openrouter = createOpenRouter({
   },
 });
 
-// Primary timeout - aggressive to allow fallback attempts
-const PRIMARY_TIMEOUT_MS = 12000; // 12 seconds for first attempt
-const FALLBACK_TIMEOUT_MS = 18000; // 18 seconds for fallback
-const MAX_TOTAL_DURATION_MS = 38000; // Hard stop before 40s Vercel limit
+// Timeouts optimized for fast fallback between models
+const PRIMARY_TIMEOUT_MS = 8000;   // 8s - fail fast on first attempt
+const FALLBACK_TIMEOUT_MS = 12000; // 12s - allow more time for fallbacks
+const MAX_TOTAL_DURATION_MS = 35000; // Hard stop before 40s Vercel limit
 
-// Model fallback chain - ordered by reliability/cost balance
+// Model fallback chain - researched reliable free models from OpenRouter
+// Ordered by: speed first, then capability as fallback
 const MODELS = [
-  'google/gemma-3-4b-it:free',       // Fast, lightweight free model
-  'openrouter/free',                 // Default free tier (provider-chosen)
-  'google/gemma-3-12b-it:free',      // Larger but still free
+  'meta-llama/llama-3.2-3b-instruct:free',  // Small, fast, reliable structured output
+  'nvidia/nemotron-nano-9b-v2:free',         // Good balance of speed and capability
+  'google/gemma-3-4b-it:free',              // Lightweight, decent JSON following
+  'openai/gpt-oss-20b:free',                // OpenAI model, generally reliable
+  'openrouter/free',                        // Provider's choice (dynamic)
+  'google/gemma-3-12b-it:free',             // Larger, slower but more capable
 ] as const;
 
 // Sleep helper for delay between retries
